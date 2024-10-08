@@ -8,11 +8,12 @@ type PageProps = {
 const fetchOpenAI = async (tweetContent: string) => {
   const openai = new OpenAI();
   const prompt = `
-  Analyze the following tweet and identify the main topics it covers. 
-  Generate up to 3 vague topic tags that best represent the content of the tweet.
+  Analyze the following tweet and identify the main topics it covers.
+  Generate up to 2 vague topic tags that best represent the content of the tweet.
   Each topic should be a single word or a short phrase (2-3 words maximum).
   The topics should be general enough to be applicable to multiple tweets, but specific enough to be meaningful.
-  Respond with only the topic tags, separated by commas, nothing else.
+  If the tweet content is mostly or entirely a URL, return only the word "uncategorized".
+  Respond with only the topic tags, separated by commas, or "uncategorized" if applicable. Nothing else.
   
   Tweet: "${tweetContent}"
   
@@ -42,7 +43,7 @@ const fetchOpenAI = async (tweetContent: string) => {
 
 const Page = async ({ params: { user } }: PageProps) => {
   console.log(user);
-  const tweet = "Vote, vote, vote!";
+  const tweet = "https://t.co/lyXp5GeVHO";
   const topics = await fetchOpenAI(tweet);
   return (
     <div>

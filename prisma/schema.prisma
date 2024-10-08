@@ -12,7 +12,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id      String   @id @default(cuid())
-  name    String
+model Tweet {
+  id        String   @id @default(cuid())
+  tweetId   String   @unique
+  content   String
+  createdAt DateTime
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  topics    Topic[]
+}
+
+model User {
+  id       String  @id @default(cuid())
+  username String  @unique
+  name     String?
+  tweets   Tweet[]
+}
+
+model Topic {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  tweets      Tweet[]
+  lastTweetAt DateTime?
 }

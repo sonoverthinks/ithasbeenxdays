@@ -32,10 +32,12 @@ export const fetchAnalyzeAndStoreTweets = async () => {
             user: {
               connectOrCreate: {
                 where: {
-                  username: "elonmusk",
+                  rest_id: tweet.author.rest_id,
+                  screen_name: tweet.author.screen_name,
                 },
                 create: {
-                  username: "elonmusk",
+                  rest_id: tweet.author.rest_id,
+                  screen_name: tweet.author.screen_name,
                 },
               },
             },
@@ -46,7 +48,7 @@ export const fetchAnalyzeAndStoreTweets = async () => {
           `Tweet ${tweet.tweet_id} already exists in database, skipping`
         );
       }
-      console.log("FINISHED");
+      console.log("FINISHED FETCH AND ANALYZING");
     }
   } catch (error) {
     console.error(error);

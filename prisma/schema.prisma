@@ -24,7 +24,8 @@ model Tweet {
 
 model User {
   id       String  @id @default(cuid())
-  username String  @unique
+  rest_id  String  @unique
+  screen_name String  @unique
   name     String?
   tweets   Tweet[]
 }
@@ -33,5 +34,4 @@ model Topic {
   id          String   @id @default(cuid())
   name        String   @unique
   tweets      Tweet[]
-  lastTweetAt DateTime?
 }

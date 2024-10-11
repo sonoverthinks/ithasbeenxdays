@@ -23,15 +23,15 @@ model Tweet {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  rest_id  String  @unique
-  screen_name String  @unique
-  name     String?
-  tweets   Tweet[]
+  id          String   @id @default(cuid())
+  rest_id     String   @unique
+  screen_name String   @unique
+  name        String?
+  tweets      Tweet[]
 }
 
 model Topic {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  tweets      Tweet[]
+  id     String   @id @default(cuid())
+  name   String   @unique
+  tweets Tweet[]
 }

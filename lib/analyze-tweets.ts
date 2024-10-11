@@ -4,7 +4,7 @@ export const analyzeTweets = async (tweetContent: string) => {
   const openai = new OpenAI();
   const prompt = `
     Analyze the following tweet and identify the main topics it covers.
-    Generate up to 2 vague topic tags that best represent the content of the tweet.
+    Generate 1 or 2 extremely vague topic tags that best represent the content of the tweet.
     Each topic should be a single word or a short phrase (2-3 words maximum).
     The topics should be general enough to be applicable to multiple tweets, but specific enough to be meaningful.
     If the tweet content is mostly or entirely a URL, return only the word "uncategorized".

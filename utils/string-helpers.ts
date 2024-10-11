@@ -5,3 +5,7 @@ export function removeUrls(input: string): string {
   // Replace all URLs with an empty string
   return input.replace(urlPattern, "");
 }
+
+export function cleanParam(input: string): string {
+  return input.replace(/%20/g, " ");
+}

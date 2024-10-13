@@ -1,4 +1,4 @@
-import SideNav from "@/components/SideNav";
+import SideNav from "@/components/sideNav/SideNav";
 import React from "react";
 
 type LayoutProps = {

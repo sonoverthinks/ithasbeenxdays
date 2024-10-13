@@ -24,19 +24,23 @@ const Page = async () => {
   // console.log("🚀 ~ Page ~ topics:", topics);
 
   return (
-    <div className="flex flex-col gap-y-4 p-4 rounded-lg border border-gray-200">
-      <div className="flex flex-col gap-y-2">
+    <div className="flex flex-col rounded-lg border border-gray-200">
+      <div className="flex flex-col">
+        {/* <p className="text-2xl p-4 font-semibold text-darkGray border-b border-gray-200 py-4">
+          since Elon Twitted About
+        </p> */}
         {topics.map((topic) => (
-          <div key={topic.id}>
-            <p>
-              {calculateTimeSince(topic.tweets[0].createdAt)} since Elon twitted
-              about{" "}
-              <span className="">
-                <Link href={`/elon/${topic.name}`}>{topic.name}</Link>
-              </span>
+          <div
+            className="hover:bg-extraExtraLightGray duration-75 ease-in-out border-b border-gray-200 py-4"
+            key={topic.id}
+          >
+            <Link className="" href={`/elon/${topic.name}`}>
+              <p className="text-blue text-xl px-4">{topic.name}</p>
+            </Link>
+            <p className="text-2xl px-4">
+              {calculateTimeSince(topic.tweets[0].createdAt)}
             </p>
-
-            <p>{topic.tweets[0].content}</p>
+            <p className="px-4 text-base">{topic.tweets[0].content}</p>
           </div>
         ))}
       </div>

@@ -4,7 +4,7 @@ import ShowMore from "./ShowMore";
 
 const SideNav = async () => {
   const fetchTopics = async (
-    minCount = 15
+    minCount = 4
   ): Promise<Array<{ id: string; name: string; tweetCount: number }>> => {
     let topTopics = await prisma.topic.findMany({
       select: {
@@ -49,8 +49,10 @@ const SideNav = async () => {
 
   const topics = await fetchTopics();
   return (
-    <div className="rounded-lg w-full max-w-sm border border-gray-200">
-      <p className="text-2xl p-4 font-semibold">Elon Favorites</p>
+    <div className="flex-shrink-0 rounded-lg w-full max-w-sm border border-gray-200">
+      <p className="text-2xl p-4 font-semibold text-darkGray border-b border-gray-200 py-4">
+        Elon Favorites
+      </p>
       {topics.map((topic) => {
         return (
           <TopicCard
@@ -74,7 +76,7 @@ const TopicCard = ({
 }) => {
   return (
     <Link href={`/elon/${topic}`}>
-      <div className="p-4 py-3 hover:cursor-pointer hover:bg-slate-100 duration-75 ease-in-out">
+      <div className="px-4 py-3 hover:cursor-pointer hover:bg-extraExtraLightGray duration-75 ease-in-out">
         <p className="text-base font-semibold text-black">{topic}</p>
         <p className="text-sm text-darkGray">{`${tweetCount} times`}</p>
       </div>

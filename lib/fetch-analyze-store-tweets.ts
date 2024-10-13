@@ -1,28 +1,7 @@
 import { Tweet } from "@/types/twitter";
 import { prisma } from "./prisma";
 import { analyzeTweets } from "./analyze-tweets";
-// import { fetchTwitterTimeline } from "./fetch-timeline";
-
-async function fetchTwitterTimeline<T>(screenname = "elonmusk"): Promise<T> {
-  const apiKey = process.env.X_RAPID_API_KEY as string;
-  const url = `https://twitter-api45.p.rapidapi.com/timeline.php?screenname=${screenname}`;
-
-  const response = await fetch(url, {
-    cache: "no-store",
-    headers: {
-      "x-rapidapi-key": apiKey,
-      "x-rapidapi-host": "twitter-api45.p.rapidapi.com",
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-
-  const data = await response.json();
-  console.log(data.timeline);
-  return data.timeline;
-}
+import { fetchTwitterTimeline } from "./fetch-timeline";
 
 export const fetchAnalyzeAndStoreTweets = async () => {
   try {
@@ -30,48 +9,85 @@ export const fetchAnalyzeAndStoreTweets = async () => {
     const timeline: Tweet[] = await fetchTwitterTimeline();
     console.log(`Fetched ${timeline.length} tweets`);
 
-    for (const tweet of timeline) {
-      const existingTweet = await prisma.tweet.findUnique({
-        where: { tweetId: tweet.tweet_id },
-      });
-      if (!existingTweet) {
-        const topics = await analyzeTweets(tweet.text);
-        console.log(
-          `Analyzed tweet ${tweet.tweet_id}. Topics: ${topics.join(", ")}`
-        );
-        await prisma.tweet.create({
-          data: {
-            tweetId: tweet.tweet_id,
-            content: tweet.text,
-            createdAt: new Date(tweet.created_at),
-            topics: {
-              connectOrCreate: topics.map((topic) => ({
-                where: { name: topic },
-                create: { name: topic },
-              })),
-            },
-            user: {
-              connectOrCreate: {
-                where: {
-                  rest_id: "44196397",
-                  screen_name: "elonmusk",
-                },
-                create: {
-                  rest_id: "44196397",
-                  screen_name: "elonmusk",
-                },
-              },
-            },
-          },
-        });
+    // Fetch existing tweets in a single query
+    const existingTweets = await prisma.tweet.findMany({
+      where: {
+        tweetId: {
+          in: timeline.map((tweet) => tweet.tweet_id),
+        },
+      },
+      select: { tweetId: true },
+    });
+
+    const existingTweetIds = new Set(existingTweets.map((t) => t.tweetId));
+
+    // Filter out existing tweets
+    const newTweets = timeline.filter(
+      (tweet) => !existingTweetIds.has(tweet.tweet_id)
+    );
+
+    // The prisma.tweet.createMany() method doesn't support nested writes (i.e., the topics.connectOrCreate relation won't work).
+    // Process and create new tweets one by one
+    for (const tweet of newTweets) {
+      let topics;
+      if (tweet.retweeted_tweet) {
+        topics = await analyzeTweets(tweet.retweeted_tweet.text);
+      } else if (tweet.quoted) {
+        topics = await analyzeTweets(tweet.quoted.text);
       } else {
-        console.log(
-          `Tweet ${tweet.tweet_id} already exists in database, skipping`
-        );
+        topics = await analyzeTweets(tweet.text);
       }
+      console.log(
+        `Analyzed tweet ${tweet.tweet_id}. Topics: ${topics.join(", ")}`
+      );
+
+      // Create tweet with associated topics
+      await prisma.tweet.create({
+        data: {
+          tweetId: tweet.tweet_id,
+          content: tweet.text,
+          createdAt: new Date(tweet.created_at),
+          topics: {
+            connectOrCreate: topics.map((topic) => ({
+              where: { name: topic },
+              create: { name: topic },
+            })),
+          },
+        },
+      });
     }
+
+    console.log("Finished fetching and analyzing tweets.");
   } catch (error) {
     console.error(error);
   }
-  console.log("FINISHED FETCH AND ANALYZING");
 };
+
+// for (const tweet of timeline) {
+//   const existingTweet = await prisma.tweet.findUnique({
+//     where: { tweetId: tweet.tweet_id },
+//   });
+//   if (!existingTweet) {
+//     const topics = await analyzeTweets(tweet.text);
+//     console.log(
+//       `Analyzed tweet ${tweet.tweet_id}. Topics: ${topics.join(", ")}`
+//     );
+//     await prisma.tweet.create({
+//       data: {
+//         tweetId: tweet.tweet_id,
+//         content: tweet.text,
+//         createdAt: new Date(tweet.created_at),
+//         topics: {
+//           connectOrCreate: topics.map((topic) => ({
+//             where: { name: topic },
+//             create: { name: topic },
+//           })),
+//         },
+//       },
+//     });
+//   } else {
+//     console.log(
+//       `Tweet ${tweet.tweet_id} already exists in database, skipping`
+//     );
+//   }
+// }

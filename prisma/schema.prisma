@@ -17,17 +17,9 @@ model Tweet {
   tweetId   String   @unique
   content   String
   createdAt DateTime
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  retweetedTweet String?
+  repostedTweet String?
   topics    Topic[]
-}
-
-model User {
-  id          String   @id @default(cuid())
-  rest_id     String   @unique
-  screen_name String   @unique
-  name        String?
-  tweets      Tweet[]
 }
 
 model Topic {
